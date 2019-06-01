@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -15,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView (R.id.btnSignin) Button btnSignIn;
     @BindView (R.id.textSlogan) TextView textSlogan;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

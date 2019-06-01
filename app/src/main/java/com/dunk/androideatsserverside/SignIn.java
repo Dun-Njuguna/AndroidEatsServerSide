@@ -1,6 +1,7 @@
 package com.dunk.androideatsserverside;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.dunk.androideatsserverside.Common.Common;
 import com.dunk.androideatsserverside.model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -66,12 +68,15 @@ public class SignIn extends AppCompatActivity {
                     if (Boolean.parseBoolean(user.getIsStaff())){
                         if (user.getPassword().equals(password)) {
                             //login
+                            Intent intent = new Intent(SignIn.this,Home.class);
+                            Common.currentUser = user;
+                            startActivity(intent);
+
                         }else
                             Toast.makeText(SignIn.this, "wrong password", Toast.LENGTH_SHORT).show();
                     }else
                         Toast.makeText(SignIn.this, "Please login with staff account", Toast.LENGTH_SHORT).show();
                 }else
-                    mDIALOG.dismiss();
                     Toast.makeText(SignIn.this, "User does not exist", Toast.LENGTH_SHORT).show();
             }
 
