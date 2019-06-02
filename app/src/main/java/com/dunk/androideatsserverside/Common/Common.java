@@ -13,7 +13,7 @@ public class Common {
             return "Placed";
         }
         else if (code.equals("1")){
-            return "On my way";
+            return "Shipping";
         }else
             return "Shipped";
 

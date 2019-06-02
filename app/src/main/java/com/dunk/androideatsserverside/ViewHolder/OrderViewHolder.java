@@ -43,7 +43,7 @@ public class OrderViewHolder extends RecyclerView.ViewHolder implements
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         menu.setHeaderTitle("Select Action");
-        menu.add(0,0,getAdapterPosition(),"Updated");
-        menu.add(0,1,getAdapterPosition(),"Deleted");
+        menu.add(0,0,getAdapterPosition(),"Update");
+        menu.add(0,1,getAdapterPosition(),"Delete");
     }
 }
