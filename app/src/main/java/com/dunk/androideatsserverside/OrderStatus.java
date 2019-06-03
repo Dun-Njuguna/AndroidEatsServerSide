@@ -106,7 +106,7 @@ public class OrderStatus extends AppCompatActivity {
 
 
             @Override
-            protected void onBindViewHolder(OrderViewHolder viewHolder, final int position, Request model) {
+            protected void onBindViewHolder(OrderViewHolder viewHolder, final int position, final Request model) {
                 viewHolder.txtOrderId.setText("Order Id: " +"#" + adapter.getRef(position).getKey());
                 viewHolder.txtOrderStatus.setText("Status: " + Common.convertCodeToStatus(model.getStatus()));
                 viewHolder.txtOrderPhone.setText("Phone: " + model.getPhone());
@@ -117,7 +117,9 @@ public class OrderStatus extends AppCompatActivity {
                 viewHolder.setItemClickListener(new ItemClickListener() {
                     @Override
                     public void onclick(View view, int position, boolean isLongClick) {
-
+                        Intent trackOderIntent = new Intent(OrderStatus.this, TrackingOrder.class);
+                        Common.currentRequest = model;
+                        startActivity(trackOderIntent);
                     }
                 });
             }
