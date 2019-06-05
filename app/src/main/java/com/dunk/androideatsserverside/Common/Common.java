@@ -6,12 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
-import com.dunk.androideatsserverside.Service.IGeoCoordinates;
+import com.dunk.androideatsserverside.Interface.IGeoCoordinates;
 import com.dunk.androideatsserverside.Service.RetrofitClient;
 import com.dunk.androideatsserverside.model.Request;
 import com.dunk.androideatsserverside.model.User;
-
-import java.util.BitSet;
 
 public class Common {
     public static User currentUser;

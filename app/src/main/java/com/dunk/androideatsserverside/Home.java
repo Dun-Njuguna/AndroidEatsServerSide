@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.dunk.androideatsserverside.Common.Common;
 import com.dunk.androideatsserverside.Interface.ItemClickListener;
+import com.dunk.androideatsserverside.Service.ListenOrder;
 import com.dunk.androideatsserverside.ViewHolder.MenuViewHolder;
 import com.dunk.androideatsserverside.model.Category;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -118,6 +119,10 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
          recycler_menu.setLayoutManager(layoutManager);
 
          loadmenu();
+
+         //call service
+        Intent services = new Intent(this , ListenOrder.class);
+        startService(services);
 
     }
 

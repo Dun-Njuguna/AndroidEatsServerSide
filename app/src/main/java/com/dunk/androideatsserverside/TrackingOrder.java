@@ -15,7 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.dunk.androideatsserverside.Common.Common;
-import com.dunk.androideatsserverside.Service.IGeoCoordinates;
+import com.dunk.androideatsserverside.Interface.IGeoCoordinates;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,7 +27,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -269,14 +268,14 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
                             .getJSONObject(0)
                             .getJSONObject("geometry")
                             .getJSONObject("location")
-                            .get("lat").toString();
+                            .get("Pa").toString();
 
 
                     String lng = ((JSONArray)jsonObject.get("results"))
                             .getJSONObject(0)
                             .getJSONObject("geometry")
                             .getJSONObject("location")
-                            .get("lng").toString();
+                            .get("Qa").toString();
 
                     LatLng orderLocation = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
                     Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.box);

@@ -1,4 +1,4 @@
-package com.dunk.androideatsserverside.Service;
+package com.dunk.androideatsserverside.Interface;
 
 
 import retrofit2.Call;
