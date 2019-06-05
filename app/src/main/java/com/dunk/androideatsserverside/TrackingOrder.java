@@ -4,6 +4,8 @@ package com.dunk.androideatsserverside;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +14,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
+import com.dunk.androideatsserverside.Common.Common;
+import com.dunk.androideatsserverside.Service.IGeoCoordinates;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -22,8 +26,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.google.android.gms.location.LocationServices.*;
 
@@ -43,10 +57,11 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
 
-    private static int UPDATED_INTERVAL = 5000;
-    private static  int FASTEST_INTERVAL = 50000;
+    private static int UPDATED_INTERVAL = 1000;
+    private static  int FASTEST_INTERVAL = 500;
     private static int DISPLACEMENT = 10;
 
+    private IGeoCoordinates mService;
 
 
     @Override
@@ -54,6 +69,7 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_order2);
 
+        mService = Common.getGeoCodeService();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
               && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -156,11 +172,17 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
                double latitude = mLastLocation.getLatitude();
                double longitude = mLastLocation.getLongitude();
 
-               //add marker and move camera
+               //add marker for your client and move camera
                LatLng yourLocation = new LatLng(latitude, longitude);
                mMap.addMarker(new MarkerOptions().position(yourLocation).title("Your Location"));
                mMap.moveCamera(CameraUpdateFactory.newLatLng(yourLocation));
                mMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
+
+               //after add marker, add marker for current order and draw rout
+               String address = Common.currentRequest.getAddress();
+               String key = "AIzaSyD9_smbzUJJnt-Okkx0VBC-pRngaTY_PJo";
+               drawRoute(yourLocation, address, key);
+
            }
            else {
                Toast.makeText(this, "Location nof found", Toast.LENGTH_SHORT).show();
@@ -233,6 +255,49 @@ public class TrackingOrder extends FragmentActivity implements OnMapReadyCallbac
     protected void onStart() {
         super.onStart();
         if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
+                mGoogleApiClient.connect();
+    }
+
+    private void drawRoute(LatLng yourLocation, String address, String key) {
+        mService.getGeoCode(address, key).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response.body().toString());
+
+                    String lat = ((JSONArray)jsonObject.get("results"))
+                            .getJSONObject(0)
+                            .getJSONObject("geometry")
+                            .getJSONObject("location")
+                            .get("lat").toString();
+
+
+                    String lng = ((JSONArray)jsonObject.get("results"))
+                            .getJSONObject(0)
+                            .getJSONObject("geometry")
+                            .getJSONObject("location")
+                            .get("lng").toString();
+
+                    LatLng orderLocation = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.box);
+                    bitmap = Common.scaleBitmap(bitmap,70,70);
+
+                    MarkerOptions marker = new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                            .title("Order of " + Common.currentRequest.getPhone())
+                            .position(orderLocation);
+                    mMap.addMarker(marker);
+
+
+
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
     }
 }
