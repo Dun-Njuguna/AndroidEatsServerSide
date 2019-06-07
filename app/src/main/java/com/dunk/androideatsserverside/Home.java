@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,18 +29,24 @@ import android.widget.Toast;
 
 import com.dunk.androideatsserverside.Common.Common;
 import com.dunk.androideatsserverside.Interface.ItemClickListener;
-import com.dunk.androideatsserverside.Service.ListenOrder;
 import com.dunk.androideatsserverside.ViewHolder.MenuViewHolder;
 import com.dunk.androideatsserverside.model.Category;
+import com.dunk.androideatsserverside.model.Token;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.firebase.ui.database.SnapshotParser;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -78,6 +83,8 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     private final int PICK_IMAGE_REQUEST =71;
 
     DrawerLayout drawer;
+
+    String currentUserPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,12 +127,31 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
          loadmenu();
 
-         //call service
-        Intent services = new Intent(this , ListenOrder.class);
-        startService(services);
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        System.out.println(token);
+                        updateToken(token);
+                    }
+                });
+
 
     }
-
+    //add token during login
+    private void updateToken(String instanceId) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference tokens = db.getReference("Tokens");
+        Token token1 = new Token(instanceId, true); //false token is sent from client app
+        currentUserPhone = Common.currentUser.getPhone();
+        tokens.child(currentUserPhone).setValue(token1);
+    }
 
     private void showDialog() {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(Home.this);
@@ -384,7 +410,25 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         return super.onContextItemSelected(item);
     }
 
+    //delete category and all its elements
     private void deleteCategory(String key) {
+
+        DatabaseReference foods = database.getReference("Foods");
+        Query foodInCategory = foods.orderByChild("menuId").equalTo(key);
+        foodInCategory.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot:dataSnapshot.getChildren()){
+                    postSnapshot.getRef().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         categories.child(key).removeValue();
         Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
     }
@@ -484,7 +528,5 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
                     });
         }
     }
-
-
 
 }

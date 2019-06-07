@@ -6,8 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
+import com.dunk.androideatsserverside.Interface.APIService;
 import com.dunk.androideatsserverside.Interface.IGeoCoordinates;
-import com.dunk.androideatsserverside.Service.RetrofitClient;
+import com.dunk.androideatsserverside.Remote.RetrofitClient;
 import com.dunk.androideatsserverside.model.Request;
 import com.dunk.androideatsserverside.model.User;
 
@@ -18,6 +19,7 @@ public class Common {
     public static final String UPDATE = "Update";
     public static final String DELETE = "Delete";
 
+    public static final String BASE_URL = "https://fcm.googleapis.com/";
     public static final String baseUri = "https://maps.googleapis.com";
 
 
@@ -51,6 +53,10 @@ public class Common {
         canvas.drawBitmap(bitmap,0,0, new Paint(Paint.FILTER_BITMAP_FLAG));
         return scaledBitmap;
 
+    }
+
+    public static APIService getFCMService(){
+        return RetrofitClient.getClientMessage(BASE_URL).create(APIService.class);
     }
 
 }
